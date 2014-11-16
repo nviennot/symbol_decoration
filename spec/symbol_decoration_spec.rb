@@ -17,6 +17,8 @@ describe Symbol::Decoration do
     its(:args)      { should == args }
     its(:block)     { should == block }
     its(:decorator) { should == decorator }
+    its(:inspect)   { should == ":some_symbol.some_decorator(1, 2, 3, #{block.inspect})" }
+    its(:to_s)      { should == subject.inspect }
   end
 
   context 'when registering multiple decorators' do
@@ -41,6 +43,8 @@ describe Symbol::Decoration do
 
     it { should be_a(Symbol::Decoration) }
     its(:decorator) { should == decorator.to_sym }
+    its(:inspect)   { should == ":some_symbol.some_decorator" }
+    its(:to_s)      { should == subject.inspect }
   end
 
   context 'when registering chainable decorator' do

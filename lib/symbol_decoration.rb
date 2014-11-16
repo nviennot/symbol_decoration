@@ -17,6 +17,14 @@ class Symbol
         end
       end
     end
+
+    def inspect
+      s = "#{symbol.inspect}.#{decorator}"
+      _args = block ? args + [block] : args
+      s += "(#{_args.map(&:inspect).join(", ")})" unless _args.empty?
+      s
+    end
+    alias_method :to_s, :inspect
   end
 
   class ChainableDecoration < Decoration
