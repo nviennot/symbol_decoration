@@ -37,11 +37,22 @@ Full example:
 ```ruby
 Symbol::Decoration.register(:gt)
 
-:field.gt.class            == Symbol::Decoration
-:field.gt.symbol           == :field
-:field.gt.decorator        == :gt
-:field.gt(5).args          == [5]
-:field.gt { 5 }.block.call == 5
+:field.gt.is_a?(Symbol::Decoration) == true
+:field.gt.symbol                    == :field
+:field.gt.decorator                 == :gt
+:field.gt(5).args                   == [5]
+:field.gt { 5 }.block.call          == 5
+```
+
+To allow certain decorators to be chainable, you must use the `:chainable =>
+true` option when registering the decorator. Example:
+
+```ruby
+Symbol::Decoration.register(:any, chainable => true)
+Symbol::Decoration.register(:in)
+
+:field.any.in # valid
+:field.in.any # invalid
 ```
 
 License

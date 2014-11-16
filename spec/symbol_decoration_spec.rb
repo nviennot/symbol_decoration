@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Symbol::Decoration do
   context 'when using a decorator' do
     before { Symbol::Decoration.register(decorator) }
-    after  { Symbol.send(:undef_method, decorator) }
+    after  { Symbol::Decoration::Extensions.send(:undef_method, decorator) }
 
     let(:symbol)    { :some_symbol }
     let(:decorator) { :some_decorator }
@@ -21,8 +21,8 @@ describe Symbol::Decoration do
 
   context 'when registering multiple decorators' do
     before { Symbol::Decoration.register(:hello, :world) }
-    after  { Symbol.send(:undef_method, :hello) }
-    after  { Symbol.send(:undef_method, :world) }
+    after  { Symbol::Decoration::Extensions.send(:undef_method, :hello) }
+    after  { Symbol::Decoration::Extensions.send(:undef_method, :world) }
 
     it 'should register the decorators' do
       :symbol.hello.should be_a(Symbol::Decoration)
@@ -32,7 +32,7 @@ describe Symbol::Decoration do
 
   context 'when registering a string decorator' do
     before { Symbol::Decoration.register(decorator) }
-    after  { Symbol.send(:undef_method, decorator) }
+    after  { Symbol::Decoration::Extensions.send(:undef_method, decorator) }
 
     let(:symbol)    { :some_symbol }
     let(:decorator) { 'some_decorator' }
@@ -41,5 +41,26 @@ describe Symbol::Decoration do
 
     it { should be_a(Symbol::Decoration) }
     its(:decorator) { should == decorator.to_sym }
+  end
+
+  context 'when registering chainable decorator' do
+    before { Symbol::Decoration.register(:non_chainable_dec) }
+    before { Symbol::Decoration.register(:chainable_dec, :chainable => true) }
+    after  { Symbol::Decoration::Extensions.send(:undef_method, :non_chainable_dec) }
+    after  { Symbol::Decoration::Extensions.send(:undef_method, :chainable_dec) }
+
+    it 'makes decorations chainable' do
+      :some_symbol.chainable_dec.non_chainable_dec.symbol.should == :some_symbol.chainable_dec
+      expect { :some_symbol.non_chainable_dec.non_chainable_dec }.to raise_error(NoMethodError)
+    end
+
+    context 'when registering the same decorator' do
+      before { Symbol::Decoration.register(:chainable_dec) }
+
+      it 'remembers the chainable attribute' do
+        :some_symbol.chainable_dec.non_chainable_dec.symbol.should == :some_symbol.chainable_dec
+        expect { :some_symbol.non_chainable_dec.non_chainable_dec }.to raise_error(NoMethodError)
+      end
+    end
   end
 end
